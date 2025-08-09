@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Komik</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--card-bg-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        #comic-list, #comic-detail, #comic-reader {
+            display: none;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .comic-card {
+            background-color: var(--card-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 250px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .comic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .comic-card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .comic-card-title {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        #comic-detail-content {
+            background-color: var(--card-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #detail-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            flex-direction: column;
+        }
+
+        #detail-header img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #detail-info {
+            flex-grow: 1;
+        }
+
+        #detail-info h2 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        #detail-info h3 {
+            color: var(--secondary-color);
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+        }
+        
+        #detail-info p {
+            margin: 0 0 10px 0;
+        }
+
+        #description {
+            text-align: justify;
+        }
+
+        #chapter-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #chapter-list li {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        #chapter-list li:hover {
+            background-color: #e2e6ea;
+        }
+
+        #comic-reader-content {
+            text-align: center;
+        }
+
+        #reader-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        #reader-nav button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        #reader-nav button:hover {
+            background-color: #0056b3;
+        }
+
+        #reader-pages img {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+
+        .back-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+
+        @media (min-width: 768px) {
+            #comic-list {
+                justify-content: flex-start;
+            }
+            #detail-header {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Preview Server Komik</h1>
+    </header>
+
+    <div id="comic-list" style="display: flex;">
+        <p>Memuat komik...</p>
+    </div>
+
+    <div id="comic-detail">
+        <button class="back-button" onclick="showComicList()">Kembali ke Daftar</button>
+        <div id="comic-detail-content">
+            </div>
+    </div>
+
+    <div id="comic-reader">
+        <button class="back-button" onclick="showComicDetail()">Kembali ke Detail</button>
+        <div id="reader-nav">
+            <button id="prev-chapter">Bab Sebelumnya</button>
+            <h2 id="chapter-title"></h2>
+            <button id="next-chapter">Bab Berikutnya</button>
+        </div>
+        <div id="reader-pages">
+            </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'https://server.mpsan.my.id/api/v1';
+    
+    const comicListEl = document.getElementById('comic-list');
+    const comicDetailEl = document.getElementById('comic-detail');
+    const comicReaderEl = document.getElementById('comic-reader');
+    
+    const comicDetailContentEl = document.getElementById('comic-detail-content');
+    const chapterTitleEl = document.getElementById('chapter-title');
+    const readerPagesEl = document.getElementById('reader-pages');
+    const prevChapterBtn = document.getElementById('prev-chapter');
+    const nextChapterBtn = document.getElementById('next-chapter');
+    
+    let currentComic = null;
+    let currentChapterIndex = -1;
+
+    // Menampilkan halaman daftar komik
+    function showComicList() {
+        comicListEl.style.display = 'flex';
+        comicDetailEl.style.display = 'none';
+        comicReaderEl.style.display = 'none';
+    }
+
+    // Menampilkan halaman detail komik
+    async function showComicDetail(comicId) {
+        comicListEl.style.display = 'none';
+        comicDetailEl.style.display = 'block';
+        comicReaderEl.style.display = 'none';
+        
+        comicDetailContentEl.innerHTML = '<p>Memuat detail komik...</p>';
+
+        const response = await fetch(`${API_BASE_URL}/comics/${comicId}`);
+        const comic = await response.json();
+        currentComic = comic;
+        
+        renderComicDetail(comic);
+    }
+    
+    // Menampilkan halaman pembaca komik
+    async function showComicReader(chapterId, chapterIndex) {
+        comicListEl.style.display = 'none';
+        comicDetailEl.style.display = 'none';
+        comicReaderEl.style.display = 'block';
+
+        currentChapterIndex = chapterIndex;
+
+        updateReaderNav();
+        readerPagesEl.innerHTML = '<p>Memuat halaman komik...</p>';
+        
+        const response = await fetch(`${API_BASE_URL}/comics/chapters/${chapterId}/pages`);
+        const pages = await response.json();
+        
+        renderComicPages(pages);
+    }
+
+    // Mengambil dan menampilkan daftar komik
+    async function fetchAndRenderComics() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/comics`);
+            const comics = await response.json();
+            
+            comicListEl.innerHTML = '';
+            comics.forEach(comic => {
+                const comicCard = document.createElement('div');
+                comicCard.classList.add('comic-card');
+                comicCard.onclick = () => showComicDetail(comic.id);
+                
+                comicCard.innerHTML = `
+                    <img src="${comic.coverUrl}" alt="${comic.title}">
+                    <div class="comic-card-title">${comic.title}</div>
+                `;
+                
+                comicListEl.appendChild(comicCard);
+            });
+        } catch (error) {
+            comicListEl.innerHTML = '<p>Gagal memuat data komik. Silakan coba lagi nanti.</p>';
+            console.error('Error fetching comics:', error);
+        }
+    }
+
+    // Merender halaman detail komik
+    function renderComicDetail(comic) {
+        const statusText = comic.status === 1 ? 'Selesai' : comic.status === 2 ? 'Berlanjut' : 'Tidak Diketahui';
+        
+        const chapterListHtml = comic.chapters.map((chapter, index) => {
+            const releaseDate = new Date(chapter.releaseDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            return `
+                <li onclick="showComicReader('${chapter.id}', ${index})">
+                    Bab ${chapter.chapterNumber} ${chapter.chapterTitle ? `- ${chapter.chapterTitle}` : ''}
+                    <br><small>Rilis: ${releaseDate}</small>
+                </li>
+            `;
+        }).join('');
+        
+        comicDetailContentEl.innerHTML = `
+            <div id="detail-header">
+                <img src="${comic.coverUrl}" alt="${comic.title}">
+                <div id="detail-info">
+                    <h2>${comic.title}</h2>
+                    <h3>${comic.alternativeTitle || 'Tidak ada judul alternatif'}</h3>
+                    <p><strong>Penulis:</strong> ${comic.authors || 'Tidak diketahui'}</p>
+                    <p><strong>Artis:</strong> ${comic.artists || 'Tidak diketahui'}</p>
+                    <p><strong>Genre:</strong> ${comic.genres || 'Tidak diketahui'}</p>
+                    <p><strong>Tahun Rilis:</strong> ${comic.releaseYear || 'Tidak diketahui'}</p>
+                    <p><strong>Status:</strong> ${statusText}</p>
+                </div>
+            </div>
+            <div>
+                <h3>Deskripsi</h3>
+                <p id="description">${comic.description || 'Tidak ada deskripsi.'}</p>
+            </div>
+            <div>
+                <h3>Daftar Bab</h3>
+                <ul id="chapter-list">
+                    ${chapterListHtml}
+                </ul>
+            </div>
+        `;
+    }
+
+    // Merender halaman komik
+    function renderComicPages(pages) {
+        readerPagesEl.innerHTML = '';
+        pages.forEach(pageUrl => {
+            const img = document.createElement('img');
+            img.src = pageUrl;
+            img.alt = 'Halaman komik';
+            readerPagesEl.appendChild(img);
+        });
+    }
+
+    // Mengelola tombol navigasi bab
+    function updateReaderNav() {
+        const currentChapter = currentComic.chapters[currentChapterIndex];
+        chapterTitleEl.textContent = `Bab ${currentChapter.chapterNumber} ${currentChapter.chapterTitle ? `: ${currentChapter.chapterTitle}` : ''}`;
+
+        prevChapterBtn.disabled = currentChapterIndex >= currentComic.chapters.length - 1;
+        nextChapterBtn.disabled = currentChapterIndex <= 0;
+    }
+
+    prevChapterBtn.onclick = () => {
+        if (currentChapterIndex < currentComic.chapters.length - 1) {
+            const prevChapter = currentComic.chapters[currentChapterIndex + 1];
+            showComicReader(prevChapter.id, currentChapterIndex + 1);
+        }
+    };
+    
+    nextChapterBtn.onclick = () => {
+        if (currentChapterIndex > 0) {
+            const nextChapter = currentComic.chapters[currentChapterIndex - 1];
+            showComicReader(nextChapter.id, currentChapterIndex - 1);
+        }
+    };
+
+    // Memulai aplikasi
+    fetchAndRenderComics();
+</script>
+
+</body>
+</html>
